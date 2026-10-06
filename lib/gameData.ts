@@ -20,6 +20,11 @@ export interface EpochData {
   era: string;
   title: string;
   subtitle: string;
+  themeColor: string;
+  accentBorder: string;
+  bgGradient: string;
+  badgeBg: string;
+  vietnamContext: string;
   quote: {
     text: string;
     author: string;
@@ -171,6 +176,11 @@ export const EPOCHS: EpochData[] = [
     era: 'Kỷ Nguyên Khởi Thức',
     title: 'Cơn Thức Tỉnh & Cỗ Máy Lịch Sử',
     subtitle: 'Từ không tưởng mơ mộng đến quy luật duy vật biện chứng',
+    themeColor: '#f59e0b',
+    accentBorder: 'border-amber-500/60',
+    bgGradient: 'from-amber-950/40 via-stone-900/90 to-stone-950',
+    badgeBg: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+    vietnamContext: 'Vận dụng tại Việt Nam: Quy luật quan hệ sản xuất phải phù hợp với trình độ phát triển của lực lượng sản xuất là cơ sở khoa học để Đảng ta xướng xuất đường lối Đổi Mới năm 1986.',
     quote: {
       text: 'Các nhà triết học từ trước đến nay chỉ giải thích thế giới bằng nhiều cách khác nhau, song vấn đề là cải tạo thế giới.',
       author: 'Karl Marx (Luận cương về Feuerbach, 1845)'
@@ -195,6 +205,11 @@ export const EPOCHS: EpochData[] = [
     era: 'Sứ Mệnh Tiên Phong',
     title: 'Lực Lượng Dẫn Dắt Toàn Thế Giới',
     subtitle: 'Giai cấp công nhân đại công nghiệp & ngọn đuốc giác ngộ',
+    themeColor: '#ef4444',
+    accentBorder: 'border-red-500/60',
+    bgGradient: 'from-red-950/40 via-stone-900/90 to-stone-950',
+    badgeBg: 'bg-red-500/20 text-red-300 border-red-500/40',
+    vietnamContext: 'Vận dụng tại Việt Nam: Giữ vững bản chất giai cấp công nhân của Đảng Cộng sản Việt Nam, xây dựng khối liên minh vững chắc Công - Nông - Trí thức dưới sự lãnh đạo của Đảng.',
     quote: {
       text: 'Không có lý luận cách mạng thì cũng không thể có phong trào cách mạng.',
       author: 'V.I. Lenin (Làm gì?, 1902)'
@@ -219,6 +234,11 @@ export const EPOCHS: EpochData[] = [
     era: 'Thời Kỳ Quá Độ',
     title: 'Bàn Điều Phối Kinh Tế Quá Độ',
     subtitle: 'Nghệ thuật bước quá độ gián tiếp & Kinh tế nhiều thành phần',
+    themeColor: '#10b981',
+    accentBorder: 'border-emerald-500/60',
+    bgGradient: 'from-emerald-950/40 via-stone-900/90 to-stone-950',
+    badgeBg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+    vietnamContext: 'Vận dụng tại Việt Nam: Đường lối Đổi Mới (1986) bãi bỏ cơ chế quan liêu bao cấp duy ý chí, phát triển nền kinh tế thị trường định hướng xã hội chủ nghĩa nhiều thành phần.',
     quote: {
       text: 'Muốn cứu nước và giải phóng dân tộc không có con đường nào khác con đường cách mạng vô sản.',
       author: 'Chủ tịch Hồ Chí Minh (1960)'
@@ -243,6 +263,11 @@ export const EPOCHS: EpochData[] = [
     era: 'Trụ Cột Dân Chủ',
     title: 'Kiến Trúc Pháp Quyền Xã Hội Chủ Nghĩa',
     subtitle: 'Nhà nước của dân, do dân, vì dân — Bản chất dân chủ thực chất',
+    themeColor: '#3b82f6',
+    accentBorder: 'border-blue-500/60',
+    bgGradient: 'from-blue-950/40 via-stone-900/90 to-stone-950',
+    badgeBg: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
+    vietnamContext: 'Vận dụng tại Việt Nam: Nghị quyết số 27-NQ/TW (2022) về tiếp tục xây dựng và hoàn thiện Nhà nước pháp quyền xã hội chủ nghĩa Việt Nam trong giai đoạn mới.',
     quote: {
       text: 'Nước ta là nước dân chủ. Bao nhiêu lợi ích đều vì dân. Bao nhiêu quyền hạn đều của dân.',
       author: 'Hồ Chí Minh (Báo Sự thật, 1949)'
@@ -267,6 +292,11 @@ export const EPOCHS: EpochData[] = [
     era: 'Sức Mạnh Liên Minh',
     title: 'Hòa Âm Sắc Tộc & Tự Do Tín Ngưỡng',
     subtitle: 'Khối đại đoàn kết toàn dân tộc & Tôn trọng tự do tinh thần',
+    themeColor: '#eab308',
+    accentBorder: 'border-yellow-500/60',
+    bgGradient: 'from-yellow-950/40 via-stone-900/90 to-stone-950',
+    badgeBg: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40',
+    vietnamContext: 'Vận dụng tại Việt Nam: Tôn trọng tự do tín ngưỡng, tôn giáo; thực hiện chính sách dân tộc bình đẳng, đoàn kết, tương trợ và giúp nhau cùng phát triển.',
     quote: {
       text: 'Đoàn kết, đoàn kết, đại đoàn kết. Thành công, thành công, đại thành công.',
       author: 'Chủ tịch Hồ Chí Minh (1962)'
@@ -291,6 +321,11 @@ export const EPOCHS: EpochData[] = [
     era: 'Tế Bào Hạnh Phúc',
     title: 'Vườn Ươm Gia Đình & Con Người Toàn Diện',
     subtitle: 'Gia đình văn minh tiến bộ — Tế bào lành mạnh của xã hội mới',
+    themeColor: '#ec4899',
+    accentBorder: 'border-pink-500/60',
+    bgGradient: 'from-pink-950/40 via-stone-900/90 to-stone-950',
+    badgeBg: 'bg-pink-500/20 text-pink-300 border-pink-500/40',
+    vietnamContext: 'Vận dụng tại Việt Nam: Chiến lược phát triển gia đình Việt Nam đến năm 2030, giải phóng phụ nữ và nuôi dưỡng thế hệ tương lai phát triển toàn diện.',
     quote: {
       text: 'Nhiều gia đình cộng lại mới thành xã hội, gia đình tốt thì xã hội mới tốt, xã hội tốt thì gia đình càng tốt hơn.',
       author: 'Chủ tịch Hồ Chí Minh (1959)'
@@ -315,6 +350,11 @@ export const EPOCHS: EpochData[] = [
     era: 'Đỉnh Cao Utopia',
     title: 'Đại Đô Thị Xã Hội Chủ Nghĩa 2084',
     subtitle: 'Hiện thực hóa lý tưởng: Dân giàu, nước mạnh, dân chủ, công bằng, văn minh',
+    themeColor: '#06b6d4',
+    accentBorder: 'border-cyan-500/60',
+    bgGradient: 'from-cyan-950/40 via-stone-900/90 to-stone-950',
+    badgeBg: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
+    vietnamContext: 'Khát vọng Việt Nam 2084: Xây dựng đất nước phồn vinh, hạnh phúc, trở thành nước phát triển có thu nhập cao theo định hướng XHCN, hài hòa công nghệ và văn minh nhân loại.',
     quote: {
       text: 'Thay cho xã hội tư bản cũ... sẽ xuất hiện một liên hợp, trong đó sự phát triển tự do của mỗi người là điều kiện cho sự phát triển tự do của tất cả mọi người.',
       author: 'K. Marx & F. Engels (Tuyên ngôn của Đảng Cộng sản, 1848)'
