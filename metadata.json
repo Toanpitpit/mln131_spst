@@ -1,0 +1,6 @@
+{
+  "name": "Project Utopia 2084",
+  "description": "Trò chơi mô phỏng tương tác lịch sử và kiến thiết tương lai xã hội chủ nghĩa Utopia 2084 với hình ảnh động và mini-game biện chứng.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
