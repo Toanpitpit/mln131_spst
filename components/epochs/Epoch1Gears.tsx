@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { playGearSound, playSuccessChime, playWarningBeep } from '@/lib/sound';
-import { AlertTriangle, ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle2, Sliders, History } from 'lucide-react';
 
 interface Props {
   onSuccess: () => void;
@@ -11,154 +11,233 @@ interface Props {
 
 export default function Epoch1Gears({ onSuccess, onUpdateSim }: Props) {
   const [selectedStance, setSelectedStance] = useState<string | null>(null);
-  const [speed, setSpeed] = useState<number>(50);
-  const [feedback, setFeedback] = useState<{ status: 'idle' | 'success' | 'warning'; text: string; lesson: string }>({
+  const [prodForces, setProdForces] = useState<number>(50); // Lực lượng sản xuất
+  const [prodRelations, setProdRelations] = useState<number>(30); // Quan hệ sản xuất
+  const [tested, setTested] = useState<boolean>(false);
+  const [feedback, setFeedback] = useState<{
+    status: 'idle' | 'success' | 'warning';
+    title: string;
+    text: string;
+    lesson: string;
+    realFact: string;
+  }>({
     status: 'idle',
+    title: '',
     text: '',
-    lesson: ''
+    lesson: '',
+    realFact: '',
   });
 
-  const handleSelectStance = (stanceId: string) => {
-    setSelectedStance(stanceId);
-    playGearSound();
+  const stances = [
+    {
+      id: 'owen',
+      code: 'Sự kiện 1 (1825)',
+      title: 'Thử nghiệm New Harmony của Robert Owen',
+      desc: 'Bỏ tài sản mua 20.000 mẫu đất tại Mỹ lập công xã từ thiện, xin xỏ lòng tốt của giới chủ.',
+      quote: '"Đi xin xỏ lòng trắc ẩn từ giai cấp bóc lột."',
+    },
+    {
+      id: 'luddite',
+      code: 'Sự kiện 2 (1811-1848)',
+      title: 'Phong trào phá máy Luddite & Tự phát vô chính phủ',
+      desc: 'Công nhân đột nhập xưởng đập phá khung dệt cơ khí vì coi máy móc là nguyên nhân gây đói nghèo.',
+      quote: '"Đập phá máy móc, từ chối đại công nghiệp hiện đại."',
+    },
+    {
+      id: 'marx',
+      code: 'Sự kiện 3 (02/1848)',
+      title: 'Tuyên ngôn của Đảng Cộng sản (Marx & Engels, London)',
+      desc: 'Khám phá quy luật mâu thuẫn giữa LLSX đại công nghiệp với QHSX chiếm hữu tư nhân tư bản.',
+      quote: '"Giai cấp vô sản phải làm chủ công nghệ và lật đổ trật tự tư sản."',
+    },
+  ];
 
-    if (stanceId === 'utopian') {
+  const handleSelectStance = (id: string) => {
+    setSelectedStance(id);
+    playGearSound();
+    setTested(false);
+  };
+
+  const handleTuneForces = (val: number) => {
+    setProdForces(val);
+    playGearSound();
+    onUpdateSim({ gearMeshRatio: val / 100, jammed: selectedStance !== 'marx' });
+  };
+
+  const handleTuneRelations = (val: number) => {
+    setProdRelations(val);
+    playGearSound();
+  };
+
+  const handleExecuteVerification = () => {
+    if (!selectedStance) return;
+    setTested(true);
+
+    if (selectedStance === 'owen') {
       playWarningBeep();
-      onUpdateSim({ gearMeshRatio: 0.1, jammed: true });
+      onUpdateSim({ gearMeshRatio: 0.15, jammed: true });
       setFeedback({
         status: 'warning',
-        text: 'CỖ MÁY BỊ KẸT CỨNG: Lòng trắc ẩn không thể lay chuyển giới chủ xí nghiệp!',
-        lesson: 'Chủ nghĩa xã hội Không tưởng tuy nhân văn nhưng không hiểu quy luật kinh tế khách quan. Cầu xin lòng tốt từ giai cấp bóc lột là ảo tưởng.'
+        title: 'CỖ MÁY KẸT CỨNG: Thất bại thực tế của New Harmony (1828)',
+        text: 'Lịch sử chứng minh: Sau 3 năm thử nghiệm, cộng đồng New Harmony của Robert Owen tan rã hoàn toàn vì không thể triệt tiêu quy luật thị trường tư bản xung quanh.',
+        lesson:
+          'Chủ nghĩa xã hội không thể hình thành bằng sự bố thí đạo đức của các cá nhân hảo tâm. Cần phải xóa bỏ tận gốc chế độ chiếm hữu tư nhân.',
+        realFact: 'Sự kiện lịch sử có thật: Robert Owen đã mất 4/5 gia tài và thừa nhận mô hình ốc đảo từ thiện không thể tồn tại trong lòng chủ nghĩa tư bản.',
       });
-    } else if (stanceId === 'luddite') {
+    } else if (selectedStance === 'luddite') {
       playWarningBeep();
       onUpdateSim({ gearMeshRatio: 0.2, jammed: true });
       setFeedback({
         status: 'warning',
-        text: 'SỤP ĐỔ KỸ THUẬT: Đập phá máy móc chỉ đẩy xã hội thụt lùi về phong kiến!',
-        lesson: 'Kẻ thù của người lao động không phải là máy móc hay kỹ thuật hiện đại, mà là quan hệ sản xuất tư bản chủ nghĩa đã lỗi thời.'
+        title: 'CỖ MÁY THỤT LÙI: Sai lầm phong trào đập phá máy móc',
+        text: 'Nghị viện Anh ban hành Đạo luật 1812 xử tử hình những người phá máy; xã hội rơi vào hỗn loạn mà công nhân vẫn bị bần cùng hóa.',
+        lesson:
+          'Kẻ thù của người lao động không phải là máy móc hay kỹ thuật hiện đại, mà là quan hệ sản xuất tư bản chủ nghĩa lỗi thời kìm hãm.',
+        realFact: 'Sự kiện lịch sử có thật: Hàng trăm khung dệt bị phá hủy ở Nottinghamshire (1811-1816) nhưng không cứu được người thợ dệt khỏi bàn tay các chủ xưởng tư bản.',
       });
-    } else if (stanceId === 'scientific') {
+    } else if (selectedStance === 'marx') {
       playSuccessChime();
-      onUpdateSim({ gearMeshRatio: 1.0, jammed: false });
+      onUpdateSim({ gearMeshRatio: Math.max(0.7, prodForces / 100), jammed: false });
       setFeedback({
         status: 'success',
-        text: 'CỖ MÁY BIỆN CHỨNG ĂN KHỚP HOÀN HẢO: Đã phát hiện ra quy luật vận động của lịch sử!',
-        lesson: 'Sự ra đời của Chủ nghĩa Xã hội Khoa học: Kế thừa hạt nhân hợp lý, vạch trần mâu thuẫn giữa Lực lượng sản xuất xã hội hóa cao với Quan hệ chiếm hữu tư nhân.'
+        title: 'CỖ MÁY BIỆN CHỨNG ĂN KHỚP HOÀN HẢO! (London, 1848)',
+        text: 'Tuyên ngôn của Đảng Cộng sản ra đời tháng 2/1848 đã trang bị cho phong trào công nhân toàn cầu thế giới quan khoa học và phương pháp luận duy vật biện chứng.',
+        lesson:
+          'Quy luật khách quan: Quan hệ sản xuất phải phù hợp với trình độ phát triển của lực lượng sản xuất. Giai cấp công nhân là chủ thể của nền đại công nghiệp.',
+        realFact: 'Sự kiện lịch sử có thật: Tuyên ngôn 1848 đã soi đường cho các cuộc khởi nghĩa của công nhân Paris tháng 6/1848 và phong trào cách mạng châu Âu.',
       });
-    }
-  };
-
-  const handleSliderChange = (val: number) => {
-    setSpeed(val);
-    playGearSound();
-    if (selectedStance === 'scientific') {
-      onUpdateSim({ gearMeshRatio: val / 100, jammed: false });
     }
   };
 
   return (
     <div className="space-y-4">
-      {/* Ideology Selector Cards */}
+      {/* 1. Stance Selection based on real 1848 events */}
       <div className="space-y-2">
-        <label className="text-xs uppercase tracking-wider text-amber-200/80 font-medium block">
-          Chọn Định Hướng Lý Luận & Hành Động Biện Chứng:
+        <label className="text-xs font-semibold uppercase tracking-wider text-stone-300 block">
+          1. Khảo cứu 3 sự kiện lịch sử thực tế về phong trào thế kỷ XIX:
         </label>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
-          <button
-            type="button"
-            onClick={() => handleSelectStance('utopian')}
-            className={`p-3 text-left border transition-all cursor-pointer ${
-              selectedStance === 'utopian'
-                ? 'border-red-500 bg-red-950/40 text-red-200 shadow-md ring-1 ring-red-500'
-                : 'border-stone-800 bg-stone-900/60 text-stone-300 hover:border-amber-700/50 hover:bg-stone-800/60'
-            }`}
-          >
-            <div className="text-xs font-semibold uppercase text-stone-400 mb-1">Khuynh Hướng A</div>
-            <div className="text-sm font-medium">Kêu gọi lòng từ bi & trắc ẩn từ giới chủ xí nghiệp</div>
-            <div className="text-[11px] text-stone-500 mt-1">CNXH Không tưởng thế kỷ XIX</div>
-          </button>
+          {stances.map((st) => {
+            const isSelected = selectedStance === st.id;
+            return (
+              <button
+                key={st.id}
+                type="button"
+                onClick={() => handleSelectStance(st.id)}
+                className={`p-3 text-left border rounded transition-colors cursor-pointer flex flex-col justify-between ${
+                  isSelected
+                    ? 'border-amber-400 bg-amber-950/40 text-stone-100 ring-1 ring-amber-400/50'
+                    : 'border-stone-800 bg-stone-900/60 text-stone-300 hover:border-stone-700 hover:bg-stone-850'
+                }`}
+              >
+                <div>
+                  <div className="text-[11px] font-mono text-stone-400 mb-1">{st.code}</div>
+                  <div className="text-xs font-semibold text-stone-200 leading-snug">{st.title}</div>
+                </div>
+                <div className="text-[11px] text-stone-400 mt-2 line-clamp-3 leading-relaxed">
+                  {st.desc}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
-          <button
-            type="button"
-            onClick={() => handleSelectStance('luddite')}
-            className={`p-3 text-left border transition-all cursor-pointer ${
-              selectedStance === 'luddite'
-                ? 'border-amber-500 bg-amber-950/40 text-amber-200 shadow-md ring-1 ring-amber-500'
-                : 'border-stone-800 bg-stone-900/60 text-stone-300 hover:border-amber-700/50 hover:bg-stone-800/60'
-            }`}
-          >
-            <div className="text-xs font-semibold uppercase text-stone-400 mb-1">Khuynh Hướng B</div>
-            <div className="text-sm font-medium">Đập phá máy móc, từ chối đại công nghiệp</div>
-            <div className="text-[11px] text-stone-500 mt-1">Phong trào tự phát vô chính phủ</div>
-          </button>
+      {/* 2. Interactive Dialectical Tension Tuning */}
+      <div className="bg-stone-900/70 border border-stone-800 p-3.5 rounded space-y-3">
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-semibold text-stone-300 flex items-center gap-1.5">
+            <Sliders className="w-3.5 h-3.5 text-amber-400" />
+            <span>2. Thử nghiệm quy luật mâu thuẫn LLSX và QHSX:</span>
+          </span>
+          <span className="font-mono text-stone-400 text-[11px]">
+            Độ tương thích: {Math.abs(prodForces - prodRelations) < 20 ? 'Tương thích' : 'Mâu thuẫn gay gắt'}
+          </span>
+        </div>
 
-          <button
-            type="button"
-            onClick={() => handleSelectStance('scientific')}
-            className={`p-3 text-left border transition-all cursor-pointer ${
-              selectedStance === 'scientific'
-                ? 'border-emerald-500 bg-emerald-950/40 text-emerald-200 shadow-md ring-1 ring-emerald-500'
-                : 'border-stone-800 bg-stone-900/60 text-stone-300 hover:border-amber-700/50 hover:bg-stone-800/60'
-            }`}
-          >
-            <div className="text-xs font-semibold uppercase text-emerald-400 mb-1 flex items-center gap-1">
-              <span>Khuynh Hướng C</span>
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+        <div className="space-y-2 text-xs">
+          <div>
+            <div className="flex justify-between text-[11px] text-stone-400 mb-1">
+              <span>Trình độ Lực Lượng Sản Xuất (Công nghệ đại công nghiệp hơi nước):</span>
+              <span className="font-mono text-amber-300">{prodForces}%</span>
             </div>
-            <div className="text-sm font-medium">Khám phá quy luật phát triển & sứ mệnh lịch sử</div>
-            <div className="text-[11px] text-stone-400 mt-1">Chủ nghĩa Xã hội Khoa học</div>
+            <input
+              type="range"
+              min="10"
+              max="100"
+              value={prodForces}
+              onChange={(e) => handleTuneForces(Number(e.target.value))}
+              className="w-full accent-amber-500 cursor-pointer"
+            />
+          </div>
+
+          <div>
+            <div className="flex justify-between text-[11px] text-stone-400 mb-1">
+              <span>Tính Xã Hội Hóa của Quan Hệ Sản Xuất:</span>
+              <span className="font-mono text-amber-300">{prodRelations}%</span>
+            </div>
+            <input
+              type="range"
+              min="10"
+              max="100"
+              value={prodRelations}
+              onChange={(e) => handleTuneRelations(Number(e.target.value))}
+              className="w-full accent-amber-500 cursor-pointer"
+            />
+          </div>
+        </div>
+
+        {/* Verification Trigger Button */}
+        <div className="pt-1 flex justify-end">
+          <button
+            type="button"
+            disabled={!selectedStance}
+            onClick={handleExecuteVerification}
+            className="px-4 py-2 bg-stone-800 hover:bg-stone-700 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-stone-200 rounded border border-stone-700 cursor-pointer transition-colors"
+          >
+            Vận Hành Thử Nghiệm Quy Luật 1848
           </button>
         </div>
       </div>
 
-      {/* Speed Slider */}
-      <div className="bg-stone-900/60 border border-stone-800 p-3 flex items-center justify-between gap-4">
-        <div className="text-xs text-stone-300">
-          <span className="font-semibold text-amber-400">Tốc độ xã hội hóa sản xuất:</span> {speed}%
-        </div>
-        <input
-          type="range"
-          min="10"
-          max="100"
-          value={speed}
-          onChange={(e) => handleSliderChange(Number(e.target.value))}
-          className="w-48 accent-amber-500 cursor-pointer"
-        />
-      </div>
-
-      {/* Feedback Card */}
-      {feedback.status !== 'idle' && (
+      {/* Feedback Section with Real Historical Facts */}
+      {tested && feedback.status !== 'idle' && (
         <div
-          className={`p-3.5 border text-sm transition-all ${
+          className={`p-3.5 border rounded text-xs transition-all leading-relaxed ${
             feedback.status === 'success'
-              ? 'bg-emerald-950/40 border-emerald-600/50 text-emerald-200'
-              : 'bg-red-950/40 border-red-600/50 text-red-200'
+              ? 'bg-emerald-950/40 border-emerald-700/60 text-emerald-200'
+              : 'bg-rose-950/40 border-rose-700/60 text-rose-200'
           }`}
         >
-          <div className="font-bold flex items-center gap-2">
+          <div className="font-bold flex items-center gap-2 text-sm mb-1">
             {feedback.status === 'success' ? (
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             ) : (
-              <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
             )}
-            <span>{feedback.text}</span>
+            <span>{feedback.title}</span>
           </div>
-          <div className="text-xs mt-1.5 opacity-90 leading-relaxed italic">
-            <strong>Bài học cốt lõi:</strong> {feedback.lesson}
+          <p className="opacity-95">{feedback.text}</p>
+          <div className="mt-2 pt-2 border-t border-white/10 text-[11px] opacity-90 space-y-1">
+            <div>
+              <strong className="text-amber-300">Tư liệu lịch sử có thật:</strong> {feedback.realFact}
+            </div>
+            <div>
+              <strong>Bài học lý luận:</strong> {feedback.lesson}
+            </div>
           </div>
         </div>
       )}
 
       {/* Advance button */}
-      {feedback.status === 'success' && (
+      {tested && feedback.status === 'success' && (
         <div className="flex justify-end pt-1">
           <button
             type="button"
             onClick={onSuccess}
-            className="px-5 py-2.5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-stone-950 font-bold text-sm shadow-lg cursor-pointer transition-all border border-amber-400 flex items-center gap-1.5"
+            className="px-5 py-2.5 bg-amber-400 hover:bg-amber-300 text-stone-950 font-bold text-xs rounded transition-colors cursor-pointer flex items-center gap-1.5"
           >
-            <span>TIẾP TỤC HÀNH TRÌNH BIỆN CHỨNG</span>
+            <span>TIẾP TỤC BƯỚC ĐI LỊCH SỬ</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

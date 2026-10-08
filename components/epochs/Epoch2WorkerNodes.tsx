@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { playConnectTone, playSuccessChime, playWarningBeep } from '@/lib/sound';
-import { AlertTriangle, ArrowRight, Check, CheckCircle2 } from 'lucide-react';
+import { AlertCircle, ArrowRight, Check, CheckCircle2, ShieldAlert } from 'lucide-react';
 
 interface Props {
   onSuccess: () => void;
@@ -11,134 +11,207 @@ interface Props {
 
 export default function Epoch2WorkerNodes({ onSuccess, onUpdateSim }: Props) {
   const [selectedNodes, setSelectedNodes] = useState<number[]>([]);
-  const [trapTriggered, setTrapTriggered] = useState<boolean>(false);
-  const [feedback, setFeedback] = useState<{ status: 'idle' | 'success' | 'warning'; text: string; lesson: string }>({
+  const [hasEvaluated, setHasEvaluated] = useState<boolean>(false);
+  const [feedback, setFeedback] = useState<{
+    status: 'idle' | 'success' | 'warning';
+    title: string;
+    text: string;
+    lesson: string;
+    realFact: string;
+  }>({
     status: 'idle',
+    title: '',
     text: '',
-    lesson: ''
+    lesson: '',
+    realFact: '',
   });
 
   const nodesList = [
-    { id: 1, name: 'Công Nhân Đại Công Nghiệp', desc: 'Đại diện phương thức sản xuất tiên tiến nhất', isCorrect: true },
-    { id: 2, name: 'Nghiệp Đoàn & Đoàn Thể Lao Động', desc: 'Kỷ luật tổ chức và tinh thần đoàn kết cao', isCorrect: true },
-    { id: 3, name: 'Báo Chí & Lý Luận Cách Mạng', desc: 'Ngọn đuốc giác ngộ và truyền bá tư tưởng khoa học', isCorrect: true },
-    { id: 4, name: 'Khối Liên Minh Công - Nông - Trí Thức', desc: 'Nền tảng chính trị - xã hội vô địch', isCorrect: true },
-    { id: 5, name: 'Ảo Tưởng Kỹ Trị Tư Sản', desc: 'Phó mặc quyền lực cho các ông trùm tư bản thuật toán', isCorrect: false }
+    {
+      id: 1,
+      name: 'Công Nhân Putilov & Đội Cận Vệ Đỏ',
+      category: 'Sự kiện 1917 · Petrograd',
+      desc: 'Hơn 30.000 công nhân nhà máy luyện kim Putilov bãi công, trở thành lực lượng vũ trang nòng cốt đánh chiếm Cung điện Mùa Đông.',
+      isCorrect: true,
+    },
+    {
+      id: 2,
+      name: 'Xô Viết Đại Biểu Công Nhân & Binh Lính',
+      category: 'Tổ chức Quần chúng 1917',
+      desc: 'Hình thức tổ chức tự quản quyền lực nhân dân độc đáo ra đời từ phong trào bãi công cách mạng tại Nga.',
+      isCorrect: true,
+    },
+    {
+      id: 3,
+      name: 'Báo Pravda & Luận Cương Tháng Tư (Lenin)',
+      category: 'Vũ khí Lý luận',
+      desc: 'Định hướng tư tưởng cách mạng, chuyển từ dân chủ tư sản sang cách mạng vô sản, giương cao khẩu hiệu "Toàn bộ chính quyền về tay các Xô viết!".',
+      isCorrect: true,
+    },
+    {
+      id: 4,
+      name: 'Liên Minh Công Nhân & Bần Nông Nga',
+      category: 'Nền tảng Liên minh',
+      desc: 'Sắc lệnh về Ruộng đất tịch thu ruộng đất địa chủ chia cho nông dân, tạo nên khối liên minh chính trị vững chắc.',
+      isCorrect: true,
+    },
+    {
+      id: 5,
+      name: 'Chính Phủ Lâm Thời Tư Sản Kerensky',
+      category: 'Cạm bẫy Thỏa hiệp',
+      desc: 'Chính quyền tư sản tiếp tục lôi kéo nhân dân vào Chiến tranh thế giới thứ nhất và bảo vệ quyền lợi các nhà tư bản độc quyền.',
+      isCorrect: false,
+    },
   ];
 
-  const handleToggleNode = (node: typeof nodesList[0]) => {
-    if (!node.isCorrect) {
-      playWarningBeep();
-      setTrapTriggered(true);
-      setFeedback({
-        status: 'warning',
-        text: 'CẢNH BÁO CẠM BẪY TƯ BẢN: Biến con người thành công cụ tối đa hóa lợi nhuận!',
-        lesson: 'Công nghệ hiện đại nếu nằm trong tay giai cấp tư sản độc quyền sẽ trở thành phương tiện bóc lột tinh vi hơn. Giai cấp công nhân phải làm chủ tư liệu sản xuất.'
-      });
-      return;
-    }
-
-    setTrapTriggered(false);
-    let nextSelected: number[];
-    if (selectedNodes.includes(node.id)) {
-      nextSelected = selectedNodes.filter(id => id !== node.id);
+  const handleToggleNode = (id: number) => {
+    setHasEvaluated(false);
+    let next: number[];
+    if (selectedNodes.includes(id)) {
+      next = selectedNodes.filter((item) => item !== id);
     } else {
-      nextSelected = [...selectedNodes, node.id];
+      next = [...selectedNodes, id];
       playConnectTone();
     }
+    setSelectedNodes(next);
+    onUpdateSim({ connectedNodes: next, totalNodes: 4 });
+  };
 
-    setSelectedNodes(nextSelected);
-    onUpdateSim({ connectedNodes: nextSelected, totalNodes: 4 });
+  const handleAuditNetwork = () => {
+    setHasEvaluated(true);
 
-    if (nextSelected.length === 4) {
+    const hasTrap = selectedNodes.includes(5);
+    const correctCount = selectedNodes.filter((id) => id >= 1 && id <= 4).length;
+
+    if (hasTrap) {
+      playWarningBeep();
+      setFeedback({
+        status: 'warning',
+        title: 'CẢNH BÁO: Lầm Tưởng Về Chính Phủ Lâm Thời Kerensky (1917)',
+        text: 'Chính phủ lâm thời tư sản Kerensky hứa hẹn hòa bình nhưng thực tế tiếp tục đẩy hàng triệu binh lính ra chiến trường đẫm máu phục vụ các tập đoàn tư bản.',
+        lesson:
+          'Lenin kiên quyết: "Không ủng hộ Chính phủ lâm thời!". Giai cấp công nhân và nhân dân lao động phải tự mình nắm chính quyền thông qua các Xô viết.',
+        realFact: 'Sự kiện lịch sử có thật: Tháng 7/1917, Chính phủ Kerensky đã ra lệnh bắn vào đoàn biểu tình hòa bình của công nhân và binh lính Petrograd, buộc Đảng Bolshevik phải chuyển sang khởi nghĩa vũ trang.',
+      });
+    } else if (correctCount === 4 && selectedNodes.length === 4) {
       playSuccessChime();
       setFeedback({
         status: 'success',
-        text: 'MẠNG LƯỚI SỨ MỆNH TIÊN PHONG ĐÃ THIẾT LẬP HOÀN TOÀN!',
-        lesson: 'Sứ mệnh lịch sử toàn thế giới của giai cấp công nhân là tất yếu khách quan, do địa vị kinh tế - xã hội và bản chất cách mạng triệt để quy định.'
+        title: 'MẠNG LƯỚI SỨ MỆNH TIÊN PHONG NĂM 1917 ĐÃ KẾT NỐI HOÀN HẢO!',
+        text: 'Bạn đã tập hợp trọn vẹn 4 lực lượng làm nên thắng lợi của Cách mạng Tháng Mười: Công nhân Putilov, các Xô viết, ngọn đuốc lý luận Pravda của Lenin và liên minh công nông kiên trung.',
+        lesson:
+          'Sứ mệnh lịch sử của giai cấp công nhân được cụ thể hóa bằng một Đảng tiên phong có lý luận khoa học, dẫn dắt khối liên minh giai cấp rộng rãi giành chính quyền.',
+        realFact: 'Sự kiện lịch sử có thật: Đêm 25/10/1917, phát pháo lệnh của tàu tuần dương Aurora vang lên, đánh dấu giờ phút chính quyền về tay giai cấp công nhân và nhân dân lao động Nga.',
       });
     } else {
+      playWarningBeep();
       setFeedback({
-        status: 'idle',
-        text: '',
-        lesson: ''
+        status: 'warning',
+        title: 'CHƯA ĐỦ LỰC LƯỢNG NÒNG CỐT NĂM 1917',
+        text: `Hiện bạn mới tập hợp được ${correctCount}/4 lực lượng cách mạng thực tế. Cần kết nối đầy đủ cả 4 hạt nhân lịch sử.`,
+        lesson:
+          'Thiếu vũ khí tư tưởng (Báo chí lý luận) hoặc thiếu khối liên minh với nông dân thì phong trào công nhân đơn độc không thể giành thắng lợi.',
+        realFact: 'Sự kiện lịch sử có thật: Nếu không có Sắc lệnh Ruộng đất lôi cuốn hàng triệu nông dân nghèo ủng hộ, chính quyền Xô viết non trẻ không thể vượt qua vòng vây thù địch.',
       });
     }
   };
 
-  const isCompleted = selectedNodes.length === 4 && !trapTriggered;
+  const isSuccess = hasEvaluated && feedback.status === 'success';
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <label className="text-xs uppercase tracking-wider text-amber-200/80 font-medium">
-          Chọn & Kết Nối 4 Trọng Điểm Của Lực Lượng Tiên Phong:
+      <div className="flex items-center justify-between text-xs">
+        <label className="font-semibold uppercase tracking-wider text-stone-300">
+          Khảo cứu các lực lượng thực tế trong Cách mạng Tháng Mười Nga 1917:
         </label>
-        <span className="text-xs text-amber-400 font-mono">
-          Tiến độ: {selectedNodes.length} / 4 Lực Lượng
+        <span className="font-mono text-stone-400">
+          Đã chọn: {selectedNodes.length} / 4 lực lượng
         </span>
       </div>
 
+      {/* Node list: All 5 cards styled with completely identical neutral appearance */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-        {nodesList.map(node => {
+        {nodesList.map((node) => {
           const isSelected = selectedNodes.includes(node.id);
           return (
             <button
               key={node.id}
               type="button"
-              onClick={() => handleToggleNode(node)}
-              className={`p-3 text-left border transition-all cursor-pointer flex items-start gap-3 ${
-                !node.isCorrect
-                  ? 'border-red-900/50 bg-red-950/20 text-red-300 hover:bg-red-900/30'
-                  : isSelected
-                  ? 'border-emerald-500 bg-emerald-950/50 text-emerald-200 shadow-md ring-1 ring-emerald-500'
-                  : 'border-stone-800 bg-stone-900/60 text-stone-300 hover:border-amber-700/50 hover:bg-stone-800/60'
+              onClick={() => handleToggleNode(node.id)}
+              className={`p-3 text-left border rounded transition-colors cursor-pointer flex items-start gap-3 ${
+                isSelected
+                  ? 'border-amber-400 bg-amber-950/30 text-stone-100 ring-1 ring-amber-400/40'
+                  : 'border-stone-800 bg-stone-900/60 text-stone-300 hover:border-stone-700 hover:bg-stone-850'
               }`}
             >
               <div
-                className={`w-5 h-5 flex items-center justify-center text-xs shrink-0 mt-0.5 font-bold ${
-                  isSelected ? 'bg-emerald-500 text-stone-950' : 'border border-stone-600 text-stone-400'
+                className={`w-4 h-4 rounded-sm flex items-center justify-center shrink-0 mt-0.5 border transition-colors ${
+                  isSelected
+                    ? 'border-amber-400 bg-amber-400 text-stone-950'
+                    : 'border-stone-600 bg-stone-950 text-transparent'
                 }`}
               >
-                {isSelected ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : null}
+                <Check className="w-3 h-3 stroke-[3]" />
               </div>
               <div>
-                <div className="text-sm font-semibold">{node.name}</div>
-                <div className="text-xs text-stone-400 mt-0.5 leading-snug">{node.desc}</div>
+                <div className="text-[11px] font-mono text-stone-400 uppercase tracking-wide">
+                  {node.category}
+                </div>
+                <div className="text-xs font-semibold text-stone-200 mt-0.5">{node.name}</div>
+                <div className="text-[11px] text-stone-400 mt-1 leading-relaxed">{node.desc}</div>
               </div>
             </button>
           );
         })}
       </div>
 
-      {feedback.status !== 'idle' && (
+      {/* Network Evaluation Trigger */}
+      <div className="flex justify-end pt-1">
+        <button
+          type="button"
+          disabled={selectedNodes.length === 0}
+          onClick={handleAuditNetwork}
+          className="px-4 py-2 bg-stone-800 hover:bg-stone-700 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-stone-200 rounded border border-stone-700 cursor-pointer transition-colors"
+        >
+          Kiểm Tra & Hòa Mạng Lực Lượng 1917
+        </button>
+      </div>
+
+      {/* Feedback Card */}
+      {hasEvaluated && feedback.status !== 'idle' && (
         <div
-          className={`p-3.5 border text-sm transition-all ${
+          className={`p-3.5 border rounded text-xs transition-all leading-relaxed ${
             feedback.status === 'success'
-              ? 'bg-emerald-950/40 border-emerald-600/50 text-emerald-200'
-              : 'bg-red-950/40 border-red-600/50 text-red-200'
+              ? 'bg-emerald-950/40 border-emerald-700/60 text-emerald-200'
+              : 'bg-rose-950/40 border-rose-700/60 text-rose-200'
           }`}
         >
-          <div className="font-bold flex items-center gap-2">
+          <div className="font-bold flex items-center gap-2 text-sm mb-1">
             {feedback.status === 'success' ? (
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             ) : (
-              <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
+              <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0" />
             )}
-            <span>{feedback.text}</span>
+            <span>{feedback.title}</span>
           </div>
-          <div className="text-xs mt-1.5 opacity-90 leading-relaxed italic">
-            <strong>Bài học cốt lõi:</strong> {feedback.lesson}
+          <p className="opacity-95">{feedback.text}</p>
+          <div className="mt-2 pt-2 border-t border-white/10 text-[11px] opacity-90 space-y-1">
+            <div>
+              <strong className="text-amber-300">Sự kiện có thật:</strong> {feedback.realFact}
+            </div>
+            <div>
+              <strong>Đúc kết lý luận:</strong> {feedback.lesson}
+            </div>
           </div>
         </div>
       )}
 
-      {isCompleted && (
+      {isSuccess && (
         <div className="flex justify-end pt-1">
           <button
             type="button"
             onClick={onSuccess}
-            className="px-5 py-2.5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-stone-950 font-bold text-sm shadow-lg cursor-pointer transition-all border border-amber-400 flex items-center gap-1.5"
+            className="px-5 py-2.5 bg-amber-400 hover:bg-amber-300 text-stone-950 font-bold text-xs rounded transition-colors cursor-pointer flex items-center gap-1.5"
           >
             <span>BƯỚC VÀO THỜI KỲ QUÁ ĐỘ</span>
             <ArrowRight className="w-4 h-4" />
